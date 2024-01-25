@@ -17,7 +17,10 @@ public class JDBCTemplate {
 	private JDBCTemplate() {
 		try {
 			Class.forName(DRIVER_NAME);
-			conn = DriverManager.getConnection(URL, USERNAME, PASSWORD);					
+			conn = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+			// 자동 커밋이 설정된 채 커밋할 수 없습니다. 오류가 뜨면
+			// 오토커밋을 꺼주는 실행문을 작성해야함.
+			conn.setAutoCommit(false);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -47,7 +47,9 @@ public class RegisterController extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
 		/*
+		 *  한글은 깨지지 않도록 인코딩 셋팅을 해준다.
 		 *  register.jsp 페이지를 보시면 폼태그 action에 
 		 *  url(/member/reigster.do)이 적혀있고
 		 *  폼태그 method에 요청방식이 적혀있는데 post로 적혀있음.
@@ -86,6 +88,7 @@ public class RegisterController extends HttpServlet {
 		
 		try {
 			//  이곳에 코드를 옮긴다.
+			request.setCharacterEncoding("UTF-8");// 한글 깨지지 않게 해줌
 			String memberId = request.getParameter("member-id");
 			String memberPw = request.getParameter("member-pw");
 			String memberName = request.getParameter("member-name");
@@ -104,12 +107,16 @@ public class RegisterController extends HttpServlet {
 			if(result > 0) {
 				// 성공하면 메인페이지
 				response.sendRedirect("/");
+			}else {
+				request.setAttribute("msg", "Service Failed!!");
+				request.getRequestDispatcher("/WEB-INF/views/common/errorPage.jsp")
+				.forward(request, response);
 			}
 		} catch (Exception e) {
 			// TODO: handle exception
 			request.setAttribute("msg", e.getMessage());
 			RequestDispatcher view 
-			= request.getRequestDispatcher("/WEB-INF/views/common/serviceFailed.jsp");
+			= request.getRequestDispatcher("/WEB-INF/views/common/errorPage.jsp");
 			view.forward(request, response); 
 		}
 	}

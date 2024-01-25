@@ -27,8 +27,8 @@
 					</li>
 					<li>
 						<label for="gender">성별</label> 
-						남<input type="radio" name="gender" id="member-gender" value="M">
-						여<input type="radio" name="gender" id="member-gender" value="F">
+						남<input type="radio" name="member-gender" id="member-gender" value="M">
+						여<input type="radio" name="member-gender" id="member-gender" value="F">
 					</li>
 					<li>
 						<label for="age">나이</label> 
