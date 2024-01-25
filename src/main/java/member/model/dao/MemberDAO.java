@@ -66,6 +66,44 @@ public class MemberDAO {
 		return mOne;
 	}
 
+	public Member selectOneById(Connection conn, String memberId) throws SQLException {
+		/*
+		 * 쿼리문 부터 만들어주고 PreparedStatement 쓸거니까
+		 * 위치홀더 고려해서 만들어줘요. 마이페이지를 출력할때
+		 * 사용되는 쿼리문은 다음과 같아요.
+		 * 그다음에 preparedstatement 객체를 연결을 통해서 생성하는데
+		 * 전달값으로 query문이 필요합니다. preparedStatement() 메소드는
+		 * Checked Exception이라서 예외처리해주어야 하는데
+		 * 예외 던지를 통해서 처리해줄게요. 던지는건 계속 던질 수 있고
+		 * 마지막에 받은 곳에서 무조건 try ~ catch해야하는거에요
+		 * 쿼리문이 SELECT니까 ResultSet이 필요하고 rsetToMember()
+		 * 를 통해서 rset값을 member로 변환해주어야 합니다.
+		 * 쿼리문 실행하기 전 위치홀더에 값을 셋팅해주어야 합니다.
+		 * 그리고 SELECT니까 executeQuery() 메소드가 필요한거에요
+		 * DML(INSERT,UPDATE,DELETE)의 경우에는 무슨 메소드?
+		 * executeUpdate()를 사용해야 하죠 ㅎ
+		 * memberId 가져온 rset의 갯수는 1개이기 때문에 if문을 사용
+		 * 합니다 여러개면 while 사용해야 되죠
+		 * Member타입의 변수 member 선언해서 null로 초기화 하고
+		 * 쿼리문이 성공해서 데이터가 있으면 rsetToMember()
+		 * 메소드로 rset을 member객체로 변환해줍니다.
+		 * 이렇게 변환하는 이유는 Oracle 시스템, Java 시스템처럼
+		 * 다른 시스템들이 만나서 데이터를 주고 받기 때문이에요
+		 * 자원해제 해주고 member 리턴해야 합니다.
+		 */
+		String query = "SELECT * FROM MEMBER_TBL WHERE MEMBER_ID = ?";
+		PreparedStatement pstmt = conn.prepareStatement(query);
+		pstmt.setString(1, memberId);
+		ResultSet rset = pstmt.executeQuery();
+		Member member = null;
+		if(rset.next()) {
+			member = this.rsetToMember(rset);
+		}
+		rset.close();
+		pstmt.close();
+		return member;
+	}
+
 	public int insertMember(Connection conn, Member member) throws SQLException {
 		// DAO에서는 할게 별로 없어요
 		// conn 연결도 있고, member 데이터도 있으니
@@ -105,6 +143,29 @@ public class MemberDAO {
 		return result;
 	}
 
+	public int updateMember(Connection conn, Member member) throws SQLException {
+		String query = "UPDATE MEMBER_TBL SET MEMBER_PW = ?, MEMBER_EMAIL = ?, MEMBER_PHONE = ?, MEMBER_ADDRESS = ?, MEMBER_HOBBY = ? WHERE MEMBER_ID = ?";
+		PreparedStatement pstmt = conn.prepareStatement(query);
+		pstmt.setString(6, member.getMemberId());
+		pstmt.setString(1, member.getMemberPw());
+		pstmt.setString(2, member.getMemberEmail());
+		pstmt.setString(3, member.getMemberPhone());
+		pstmt.setString(4, member.getMemberAddress());
+		pstmt.setString(5, member.getMemberHobby());
+		int result = pstmt.executeUpdate();
+		pstmt.close();
+		return result;
+	}
+
+	public int deleteMember(Connection conn, String memberId) throws SQLException {
+		String query = "DELETE FROM MEMBER_TBL WHERE MEMBER_ID = ?";
+		PreparedStatement pstmt = conn.prepareStatement(query);
+		pstmt.setString(1, memberId);
+		int result = pstmt.executeUpdate();
+		pstmt.close();
+		return result;
+	}
+
 	public Member rsetToMember(ResultSet rset) throws SQLException {
 		/* 
 		 * rset에 있는 값을 담을 member객체를 선언해주고
@@ -137,6 +198,7 @@ public class MemberDAO {
 		member.setMemberEmail(rset.getString("MEMBER_EMAIL"));
 		member.setMemberPhone(rset.getString("MEMBER_PHONE"));
 		member.setMemberAddress(rset.getString("MEMBER_ADDRESS"));
+		member.setMemberHobby(rset.getString("MEMBER_HOBBY"));
 		member.setMemberDate(rset.getDate("MEMBER_DATE"));
 		member.setUpdateDate(rset.getTimestamp("UPDATE_DATE"));
 		member.setMemberYn(rset.getString("MEMBER_YN").charAt(0));

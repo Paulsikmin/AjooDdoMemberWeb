@@ -56,6 +56,23 @@ public class MemberService {
 		return mOne;
 	}
 
+	public Member selectOneById(String memberId) throws SQLException {
+		/*
+		 * selectOneById 메소드는 memberId를 전달받아서
+		 * dao에 전달해주는 역할을 해요.
+		 * 그리고 서비스에서는 DBMS 연결을 만들어서 dao 전달해줍니다.
+		 * DB에서 쿼리문을 실행해서 결과값을 member로 받기위해
+		 * MemberDAO와 관계를 맺고 메소드를 호출해야 합니다.
+		 * conn은 이미 전에 선언해서 연결을 만들어 놨기 때문에
+		 * selectOneById() 메소드만 DAO에 자동생성해주면 됩니다.
+		 * 자동생성해주고 return은 null로 두지 말고 return member;해줍니다.
+		 * return null로 두면 결과가 안나오거나 NULL PointerException이
+		 * 발생하거나 합니다.
+		 */
+		Member member = mDao.selectOneById(conn, memberId);
+		return member;
+	}
+
 	public int insertMember(Member member) throws SQLException {
 		/*
 		 * 쿼리문의 성공여부는 숫자로 result에 담긴다.
@@ -68,6 +85,36 @@ public class MemberService {
 		 * 따라 커밋/롤백을 하는 역할을 하고 있다.
 		 */
 		int result = mDao.insertMember(conn, member);
+		if(result > 0) {
+			conn.commit();
+		}else {
+			conn.rollback();
+		}
+		return result;
+	}
+
+	public int updateMember(Member member) throws SQLException {
+		/*
+		 * 쿼리문의 성공여부는 숫자로 result에 담긴다.
+		 * 성공여부를 controller에서 알고 싶어하니까 return result;
+		 * 를 적어서 값을 반환해준다.
+		 * MemberDAO에 updateMember()메소드가 없어서 오류가 뜨고
+		 * 있으므로 create method 해준다.
+		 * Service가 하는 역할을 연결을 만들어 DAO에 전달하고
+		 * DAO에 있는 쿼리문 수행 메소드를 호출하며 성공여부에
+		 * 따라 커밋/롤백을 하는 역할을 하고 있다.
+		 */
+		int result = mDao.updateMember(conn, member);
+		if(result > 0) {
+			conn.commit();
+		}else {
+			conn.rollback();
+		}
+		return result;
+	}
+
+	public int deleteMember(String memberId) throws SQLException {
+		int result = mDao.deleteMember(conn, memberId);
 		if(result > 0) {
 			conn.commit();
 		}else {
